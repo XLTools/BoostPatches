@@ -1,6 +1,6 @@
 --- a/libs/thread/build/Jamfile.v2	2012-12-04 15:05:00.027057650 +0100
 +++ b/libs/thread/build/Jamfile.v2	2012-12-04 15:05:22.488292220 +0100
-@@ -101,7 +101,8 @@
+@@ -139,7 +139,8 @@
  local rule default_threadapi ( )
  {
      local api = pthread ;
@@ -9,22 +9,24 @@
 +    api = win32 ;
      return $(api) ;
  }
- 
+
 --- a/libs/context/build/Jamfile.v2	2013-03-03 13:39:59.684868916 +0100
 +++ b/libs/context/build/Jamfile.v2	2013-03-03 15:09:09.893232829 +0100
-@@ -26,8 +26,9 @@
+@@ -39,9 +39,10 @@
  local rule default_binary_format ( )
  {
      local tmp = elf ;
 -    if [ os.name ] = "MACOSX" { tmp = mach-o ; }
 -    if [ os.name ] = "NT" { tmp = pe ; }
+-    if [ os.name ] = "AIX" { tmp = xcoff ; }
 +#    if [ os.name ] = "MACOSX" { tmp = mach-o ; }
 +#    if [ os.name ] = "NT" { tmp = pe ; }
++#    if [ os.name ] = "AIX" { tmp = xcoff ; }
 +    tmp = pe ;
      return $(tmp) ;
  }
- 
-@@ -43,9 +44,10 @@
+
+@@ -58,9 +59,10 @@
  local rule default_abi ( )
  {
      local tmp = sysv ;
@@ -37,10 +39,10 @@
 +    tmp = ms ;
      return $(tmp) ;
  }
- 
-@@ -282,6 +284,17 @@
+
+@@ -654,6 +656,17 @@
     ;
- 
+
  alias asm_context_sources
 +   : asm/make_i386_ms_pe_gas.S
 +     asm/jump_i386_ms_pe_gas.S
@@ -56,9 +58,9 @@
     : asm/make_i386_ms_pe_masm.asm
       asm/jump_i386_ms_pe_masm.asm
       dummy.cpp
-@@ -379,6 +392,17 @@
+@@ -788,6 +801,17 @@
     ;
- 
+
  alias asm_context_sources
 +   : asm/make_x86_64_ms_pe_gas.S
 +     asm/jump_x86_64_ms_pe_gas.S
@@ -277,7 +279,7 @@
 +    movl    0x0c(%edx), %ebp        /* restore EBP */
 +
 +    movl    0x10(%esp), %eax        /* check if fpu enve preserving was requested */
-+    testl   %eax,       %eax 
++    testl   %eax,       %eax
 +    je      1f
 +
 +    stmxcsr 0x2c(%ecx)              /* save MMX control word */
@@ -285,7 +287,7 @@
 +    ldmxcsr 0x2c(%edx)              /* restore MMX control word */
 +    fldcw   0x30(%edx)              /* restore x87 control word */
 +1:
-+    movl    %edx,       %ecx        
++    movl    %edx,       %ecx
 +    movl    %fs:(0x18), %edx        /* load NT_TIB */
 +    movl    0x24(%ecx), %eax        /* load SEH exception list */
 +    movl    %eax,       (%edx)      /* restore next SEH item */
@@ -295,9 +297,9 @@
 +    movl    %eax,       0x08(%edx)  /* restore stack limit */
 +    movl    0x28(%ecx), %eax        /* load fiber local storage */
 +    movl    %eax,       0x10(%edx)  /* restore fiber local storage */
-+			            
++
 +    movl    0x0c(%esp), %eax        /* use third arg as return value after jump */
-+			            
++
 +    movl    0x10(%ecx), %esp        /* restore ESP */
 +    movl    %eax,       0x04(%esp)  /* use third arg as first arg in context function */
 +    movl    0x14(%ecx), %ecx        /* fetch the address to return to */
