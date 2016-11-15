@@ -1,9 +1,9 @@
---- boost_1_55_0/tools/build/v2/tools/python.jam.orig	2014-01-29 22:13:34.032800000 +0400
-+++ boost_1_55_0/tools/build/v2/tools/python.jam	2014-01-29 22:24:39.674600000 +0400
+--- tools/build/src/tools/python.jam.orig	2014-01-29 22:13:34.032800000 +0400
++++ tools/build/src/tools/python.jam	2014-01-29 22:24:39.674600000 +0400
 @@ -506,44 +506,11 @@
  {
      exec-prefix ?= $(prefix) ;
- 
+
 -    if $(target-os) = windows
 -    {
 -        # The exec_prefix is where you're supposed to look for machine-specific
@@ -32,7 +32,7 @@
 -            debug-message "and \""$(default-include-path[1])"\" to default #include path" ;
 -        }
 +    includes ?= $(prefix)/include/python$(version) ;
- 
+
 -        libraries ?= $(default-library-path) ;
 -        includes ?= $(default-include-path) ;
 -    }
@@ -41,12 +41,12 @@
 -        includes ?= $(prefix)/include/python$(version) ;
 +    local lib = $(exec-prefix)/lib ;
 +    libraries ?= $(lib)/python$(version)/config $(lib) ;
- 
+
 -        local lib = $(exec-prefix)/lib ;
 -        libraries ?= $(lib)/python$(version)/config $(lib) ;
 -    }
  }
- 
+
  # The version of the python interpreter to use.
 @@ -565,32 +532,15 @@
  local rule candidate-interpreters ( version ? : prefix ? : target-os )
@@ -58,9 +58,9 @@
 -        # result of a build-from-source, the PCBuild directory.
 -        bin-path = PCBuild8 PCBuild "" ;
 -    }
- 
+
      bin-path = $(bin-path:R=$(prefix)) ;
- 
+
 -    if $(target-os) in windows darwin
 -    {
 -        return                                            # Search:
@@ -75,7 +75,7 @@
 -        local unversioned = $(:E=python:R=$(bin-path:E=)) ;
 +    # Search relative to the prefix, or if none supplied, in PATH.
 +    local unversioned = $(:E=python:R=$(bin-path:E=)) ;
- 
+
 -        # If a version was specified, look for a python with that specific
 -        # version appended before looking for one called, simply, "python"
 -        return $(unversioned)$(version) $(unversioned) ;
@@ -84,8 +84,8 @@
 +    # version appended before looking for one called, simply, "python"
 +    return $(unversioned)$(version) $(unversioned) ;
  }
- 
- 
+
+
 @@ -658,15 +608,6 @@
      # Compute the representation of Python version in the name of Python's
      # library file.
@@ -99,24 +99,24 @@
 -            lib-version = $(lib-version)_d ;
 -        }
 -    }
- 
+
      if ! $(lib-version)
      {
 @@ -694,10 +635,6 @@
      target-os ?= [ feature.defaults target-os ] ;
      target-os = $(target-os:G=) ;
- 
+
 -    if $(target-os) = windows && <python-debugging>on in $(condition)
 -    {
 -        extension-suffix ?= _d ;
 -    }
      extension-suffix ?= "" ;
- 
+
      # Normalize and dissect any version number.
 @@ -721,13 +658,7 @@
          # Work with the command the user gave us.
          cmds-to-try = $(cmd-or-prefix) ;
- 
+
 -        # On Windows, do not nail down the interpreter command just yet in case
 -        # the user specified something that turns out to be a cygwin symlink,
 -        # which could bring down bjam if we invoke it.
@@ -126,7 +126,7 @@
 -        }
 +        interpreter-cmd = $(cmd-or-prefix) ;
      }
- 
+
      # Values to use in case we can not really find anything in the system.
 @@ -936,11 +867,6 @@
          #    environment variable set up, and the user may want to use it for
@@ -137,6 +137,6 @@
 -            set-PYTHONPATH = [ common.prepend-path-variable-command PYTHONPATH :
 -                $(libraries:D)/Lib ] ;
 -        }
- 
+
          alias python
            :
