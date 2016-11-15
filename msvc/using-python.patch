@@ -1,0 +1,22 @@
+diff --git a/include/boost/python/operators.hpp b/include/boost/python/operators.hpp
+index ea2be7b..d330832 100644
+--- a/include/boost/python/operators.hpp
++++ b/include/boost/python/operators.hpp
+@@ -220,6 +220,17 @@ BOOST_PYTHON_BINARY_OPERATOR(mul, rmul, *)
+ BOOST_PYTHON_BINARY_OPERATOR(mod, rmod, %)
+ BOOST_PYTHON_BINARY_OPERATOR(lshift, rlshift, <<)
+ BOOST_PYTHON_BINARY_OPERATOR(rshift, rrshift, >>)
++#ifdef _MSC_VER
++#   undef and
++#   undef xor
++#   undef or
++#   undef gt
++#   undef ge
++#   undef lt
++#   undef le
++#   undef eq
++#   undef ne
++#endif
+ BOOST_PYTHON_BINARY_OPERATOR(and, rand, &)
+ BOOST_PYTHON_BINARY_OPERATOR(xor, rxor, ^)
+ BOOST_PYTHON_BINARY_OPERATOR(or, ror, |)
